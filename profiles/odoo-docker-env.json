@@ -1,0 +1,32 @@
+{
+  "name": "Odoo docker-env (camptocamp layout)",
+  "worktrees": { "repo": "src/local" },
+  "containers": { "per_worktree": "{project}-qa-{slug}", "leftover": "^{project}-odoo-run-", "web_port": "8069" },
+  "databases": { "per_worktree": ["wt_{slug}_qa", "wt_{slug}_test"] },
+  "defaults": { "db.user": "odoo" },
+  "tasks": {
+    "status_map": {
+      "В работе": "doing",
+      "Проверка кода": "review",
+      "Проверка QA": "review",
+      "Проверка PM": "review",
+      "Стейджинг": "staging",
+      "Дискуссия": "discuss",
+      "Задание принято": "todo",
+      "К выполнению": "todo",
+      "Готово": "done",
+      "Отменено": "cancelled",
+      "Отменена": "cancelled"
+    },
+    "mr_title": "\\)\\s*-\\s*(?P<module>[a-z][a-z0-9_]+)\\s*(?:\\((?P<plan>\\d+)\\))?\\s*:",
+    "area_from_diff": true,
+    "areas": {
+      "labels": {},
+      "keywords": [],
+      "title_patterns": ["^\\w+\\(([a-z][a-z0-9_]+)\\)"],
+      "title_areas": [],
+      "plan": null
+    },
+    "clean_title": []
+  }
+}

@@ -1,0 +1,26 @@
+# secrets and personal settings — never commit
+config.json
+config.tmp
+jira.json
+*.token
+
+# runtime state
+.pid
+server.log
+runs/
+runs.json
+marks.json
+notes.json
+notes.tmp
+notes-history/
+mr-modules.json
+key-aliases.json
+
+__pycache__/
+*.pyc
+.DS_Store
+.page-token
+tests/e2e/node_modules/
+opsboard.log*
+profile.local.json
+ops-dash.log*

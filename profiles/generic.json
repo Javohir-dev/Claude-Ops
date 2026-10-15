@@ -1,0 +1,13 @@
+{
+  "name": "Generic git project",
+  "worktrees": { "repo": "." },
+  "containers": { "per_worktree": "", "leftover": "", "web_port": "" },
+  "databases": { "per_worktree": [] },
+  "tasks": {
+    "status_map": {},
+    "mr_title": "",
+    "area_from_diff": false,
+    "areas": { "labels": {}, "keywords": [], "title_patterns": [], "title_areas": [], "plan": null },
+    "clean_title": []
+  }
+}

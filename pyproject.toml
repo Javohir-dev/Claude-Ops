@@ -1,0 +1,8 @@
+[tool.ruff]
+line-length = 200
+target-version = "py38"
+extend-exclude = ["skills"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "B", "UP", "I"]
+ignore = ["E501", "B008", "UP006", "UP035", "UP045", "UP007"]

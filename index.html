@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="ops-token" content="{{OPS_TOKEN}}">
+<title>Opsboard</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23e8875f'/%3E%3Cstop offset='1' stop-color='%23c2552d'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='15' fill='url(%23g)'/%3E%3Cpath d='M10 35h10l5-12 8 22 6-15 4 5h11' fill='none' stroke='%23fff' stroke-width='5.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+  <a class="brand" href="#/"><svg class="logo" viewBox="0 0 64 64" width="24" height="24" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e8875f"/><stop offset="1" stop-color="#c2552d"/></linearGradient></defs><rect width="64" height="64" rx="15" fill="url(#lg)"/><path d="M10 35h10l5-12 8 22 6-15 4 5h11" fill="none" stroke="#fff" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Opsboard</span></a>
+  <nav id="nav" aria-label="Pages"></nav>
+  <div class="sidefoot"><div class="hstats" id="hstats"></div><div class="footrow"><button id="theme" title="Toggle theme" aria-label="Toggle theme"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 18a6 6 0 0 0 0-12v12z"/></svg></button><span class="muted fs-sm" id="ver"></span></div></div>
+</aside>
+<div class="scrim" id="scrim"></div>
+<header class="topbar"><button class="iconbtn" id="navToggle" aria-label="Menu"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg></button><a class="brand" href="#/"><svg class="logo" viewBox="0 0 64 64" width="24" height="24" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e8875f"/><stop offset="1" stop-color="#c2552d"/></linearGradient></defs><rect width="64" height="64" rx="15" fill="url(#lg)"/><path d="M10 35h10l5-12 8 22 6-15 4 5h11" fill="none" stroke="#fff" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Opsboard</span></a></header>
+<main id="view"><div class="skel-page" aria-busy="true" aria-label="Loading"><div class="skel skel-title"></div><div class="skel-row"><div class="skel skel-card"></div><div class="skel skel-card"></div><div class="skel skel-card"></div></div><div class="skel skel-block"></div><div class="skel skel-block"></div></div></main>
+<dialog class="acct" id="fix" style="width:min(520px, calc(100vw - 32px))">
+  <form id="fixForm" method="dialog">
+    <h3 id="fixTitle">Run fix</h3>
+    <div class="muted fs-md" id="fixSub"></div>
+    <div class="fixgroup">
+      <label class="sw"><span>Review threads<span class="d">fix the open review threads (merges the target branch first)</span></span><input type="checkbox" id="fxThreads"><span class="tog"></span></label>
+      <label class="sw" id="fxConflictRow"><span>Merge conflict<span class="d" id="fxConflictHint">merge the target branch and resolve conflicts</span></span><input type="checkbox" id="fxConflict"><span class="tog"></span></label>
+      <label class="sw"><span>Skip tests<span class="d">quick checks only (syntax, lint) instead of the test suite</span></span><input type="checkbox" id="fxSkip"><span class="tog"></span></label>
+    </div>
+    <div class="fixgroup">
+      <label class="sw"><span>Push, reply and resolve<span class="d">off: commit only — the replies are in the run report</span></span><input type="checkbox" id="fxPush"><span class="tog"></span></label>
+    </div>
+    <div class="preview" id="fixPreview"></div>
+    <div class="muted" style="font-size:12px;margin-top:6px">Runs Claude Code in the background in your project folder. Only your own merge requests; never force-pushes.</div>
+    <div class="row"><span class="msg" id="fixMsg"></span><button type="button" id="fixCancel">Cancel</button><button type="submit" class="btn-primary" id="fixRun">Run</button></div>
+  </form>
+</dialog>
+<div class="menu" id="menu" hidden></div>
+<dialog class="acct" id="nhist" style="width:min(620px, calc(100vw - 32px))">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><h3 id="nhistTitle" style="margin:0">History</h3><button type="button" class="linkbtn" onclick="document.getElementById('nhist').close()">Close</button></div>
+  <div id="nhistBody"></div>
+</dialog>
+<dialog class="acct" id="acct">
+  <form id="acctForm" method="dialog">
+    <h3>Jira account</h3>
+    <div class="muted" style="font-size:13px">Tasks assigned to this account are shown. Create a token at <a href="https://id.atlassian.com/manage-profile/security/api-tokens" target="_blank">id.atlassian.com → API tokens</a>.</div>
+    <label>Atlassian email<input id="acctEmail" type="email" autocomplete="username" required></label>
+    <label>API token<input id="acctToken" type="password" autocomplete="off" required></label>
+    <div class="row"><span class="msg" id="acctMsg"></span><button type="button" id="acctCancel">Cancel</button><button type="submit" class="btn-primary" id="acctSave">Check and save</button></div>
+  </form>
+</dialog>
+<script src="/static/vendor/morphdom.min.js"></script>
+<script src="/static/js/core.js"></script>
+<script src="/static/js/icons.js"></script>
+<script src="/static/js/sessions.js"></script>
+<script src="/static/js/infra.js"></script>
+<script src="/static/js/tasks.js"></script>
+<script src="/static/js/settings.js"></script>
+<script src="/static/js/hotkeys.js"></script>
+<script src="/static/js/notes.js"></script>
+<script src="/static/js/mrs.js"></script>
+<script src="/static/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,98 @@
+#!/bin/sh
+DIR="${OPS_DASH_HOME:-$(cd "$(dirname "$0")/.." && pwd)}"
+if [ -n "$OPS_PYTHON" ]; then PY="$OPS_PYTHON"; elif [ -x /usr/bin/python3 ]; then PY=/usr/bin/python3; else PY="$(command -v python3)"; fi
+OPENER="$(command -v open || command -v xdg-open || true)"
+PIDF="$DIR/.pid"
+port() { [ -n "$OPS_PORT" ] && echo "$OPS_PORT" || (cd "$DIR" && "$PY" -c "import config; print(config.get('server.port', 8095))"); }
+running() { [ -f "$PIDF" ] && ps -p "$(cat "$PIDF")" -o command= 2>/dev/null | grep -q "server.py"; }
+case "${1:-up}" in
+  up)
+    PORT="$(port)"
+    if ! running; then
+      nohup "$PY" "$DIR/server.py" --port "$PORT" >"$DIR/server.log" 2>&1 &
+      echo $! >"$PIDF"
+      sleep 1
+      running || { echo "failed to start, see $DIR/server.log"; exit 1; }
+    fi
+    echo "http://127.0.0.1:$PORT/"
+    [ "$2" = "--no-open" ] || [ -z "$OPENER" ] || "$OPENER" "http://127.0.0.1:$PORT/" >/dev/null 2>&1
+    ;;
+  down) running && kill "$(cat "$PIDF")" && echo stopped || echo "not running"; rm -f "$PIDF" ;;
+  restart) "$0" down; sleep 1; "$0" up --no-open ;;
+  status) running && echo "running: http://127.0.0.1:$(port)/ (pid $(cat "$PIDF"))" || echo "not running" ;;
+  test)
+    cd "$DIR" && "$PY" -m unittest discover -s tests -t . || exit 1
+    if [ "$2" = "--e2e" ]; then
+      [ -d tests/e2e/node_modules ] || npm install --prefix tests/e2e >/dev/null && npx --prefix tests/e2e playwright install chromium >/dev/null
+      PYTHON="$PY" npm test --prefix tests/e2e
+    fi
+    ;;
+  review) exec "$PY" "$DIR/review.py" "$@" ;;
+  skill) exec "$PY" "$DIR/skillcheck.py" "$@" ;;
+  detect|config|secret|doctor) cd "$DIR" && exec "$PY" ops.py "$@" ;;
+  update)
+    cd "$DIR" || exit 1
+    git fetch -q --tags origin || exit 1
+    if git symbolic-ref -q HEAD >/dev/null; then
+      git pull --ff-only || exit 1
+    else
+      latest="$(git tag -l 'v*' --sort=-v:refname | head -n 1)"
+      [ -n "$latest" ] || { echo "no released version found"; exit 1; }
+      git checkout -q "$latest" || exit 1
+      echo "now at $latest"
+    fi
+    "$PY" "$DIR/skillcleanup.py"
+    if running; then "$0" restart; fi
+    ;;
+  version) cat "$DIR/VERSION" ;;
+  home) echo "$DIR" ;;
+  autostart)
+    launchctl bootout "gui/$(id -u)/dev.claude-ops.dashboard" 2>/dev/null
+    rm -f "$HOME/Library/LaunchAgents/dev.claude-ops.dashboard.plist"
+    systemctl --user disable claude-ops.service >/dev/null 2>&1 && rm -f "$HOME/.config/systemd/user/claude-ops.service"
+    case "$(uname -s)" in
+      Darwin)
+        PLIST="$HOME/Library/LaunchAgents/dev.opsboard.dashboard.plist"
+        case "$2" in
+          on)
+            mkdir -p "$(dirname "$PLIST")"
+            cat >"$PLIST" <<PL
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+  <key>Label</key><string>dev.opsboard.dashboard</string>
+  <key>ProgramArguments</key><array><string>/bin/sh</string><string>$DIR/bin/opsboard</string><string>up</string><string>--no-open</string></array>
+  <key>EnvironmentVariables</key><dict><key>OPS_DASH_HOME</key><string>$DIR</string><key>PATH</key><string>$PATH</string></dict>
+  <key>RunAtLoad</key><true/>
+  <key>AbandonProcessGroup</key><true/>
+</dict></plist>
+PL
+            launchctl bootout "gui/$(id -u)/dev.opsboard.dashboard" 2>/dev/null
+            launchctl bootstrap "gui/$(id -u)" "$PLIST" && echo "starts at login ($PLIST)" ;;
+          off) launchctl bootout "gui/$(id -u)/dev.opsboard.dashboard" 2>/dev/null; rm -f "$PLIST"; echo "autostart off" ;;
+          *) [ -f "$PLIST" ] && echo "on ($PLIST)" || echo "off" ;;
+        esac ;;
+      Linux)
+        UNIT="$HOME/.config/systemd/user/opsboard.service"
+        case "$2" in
+          on)
+            mkdir -p "$(dirname "$UNIT")"
+            printf '[Unit]\nDescription=Opsboard dashboard\n\n[Service]\nType=oneshot\nRemainAfterExit=yes\nEnvironment=OPS_DASH_HOME=%s\nExecStart=/bin/sh %s/bin/opsboard up --no-open\nExecStop=/bin/sh %s/bin/opsboard down\n\n[Install]\nWantedBy=default.target\n' "$DIR" "$DIR" "$DIR" >"$UNIT"
+            systemctl --user daemon-reload && systemctl --user enable opsboard.service >/dev/null && echo "starts at login ($UNIT)" ;;
+          off) systemctl --user disable opsboard.service >/dev/null 2>&1; rm -f "$UNIT"; systemctl --user daemon-reload; echo "autostart off" ;;
+          *) [ -f "$UNIT" ] && echo "on ($UNIT)" || echo "off" ;;
+        esac ;;
+    esac
+    ;;
+  *)
+    echo "usage: opsboard [up|down|restart|status|update|version] [--no-open]"
+    echo "       opsboard autostart [on|off] | home"
+    echo "       opsboard test [--e2e]"
+    echo "       opsboard skill check [name]   (checks a fix skill against docs/fix-skill.md)"
+    echo "       opsboard review whoami|mine|info|threads|reply|resolve|describe|upload … (see opsboard review -h)"
+    echo "       opsboard detect [--apply] [--json]"
+    echo "       opsboard config get [key] | set <key> <value> [--source user|agent] | unset <key>"
+    echo "       opsboard secret set jira.token|gitlab.token [--clear]"
+    echo "       opsboard doctor [--json]"
+    ;;
+esac
