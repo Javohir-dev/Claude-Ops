@@ -98,7 +98,7 @@ try {
   const hubData = mkdtempSync(join(tmpdir(), "opsboard-e2e-gh-"));
   writeFileSync(join(hubData, "config.json"), JSON.stringify({
     version: 1,
-    settings: { "project.root": user(root), "review.host": user("github"), "github.url": user("https://127.0.0.1:9"), "github.repo": user("acme/shop"), "tasks.tracker": user("none"), "ui.language": user("ru"), "claude.usage_sidebar": user(false) },
+    settings: { "project.root": user(root), "review.host": user("github"), "github.url": user("https://127.0.0.1:9"), "github.repo": user("acme/shop"), "tasks.tracker": user("none"), "ui.language": user("ru"), "claude.live_usage": user(false) },
     secrets: { "github.token": "test-github-token" },
   }));
   const hubPort = port + 1;
@@ -118,8 +118,8 @@ try {
     check((await page.locator("#fix h3").textContent()) !== "Run fix", "static dialogs are translated too");
     await page.goto(`${hubBase}/#/`);
     await page.waitForTimeout(1200);
-    check((await page.locator("#hstats").textContent()).includes("CPU"), "with Claude usage off the sidebar shows the machine");
-    check((await page.locator("#view .tile").count()) === 0, "with Claude usage off Overview leaves out the machine tiles");
+    check((await page.locator("#hstats").textContent()).includes("CPU"), "with live usage off the sidebar shows the machine");
+    check((await page.locator("#view .tile").count()) === 0, "with live usage off Overview leaves out the machine tiles");
     await page.goto(`${hubBase}/#/tasks`);
     await page.waitForTimeout(800);
     check(!(await page.locator("#view .pagehead").textContent()).includes("Jira"), "no Jira on Tasks when the tracker is off");

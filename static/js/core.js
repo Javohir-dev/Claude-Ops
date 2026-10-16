@@ -21,7 +21,7 @@ const hostName = () => isGitHub() ? "GitHub" : "GitLab";
 const mrWord = (plural = true) => isGitHub() ? (plural ? "Pull requests" : "Pull request") : (plural ? "Merge requests" : "Merge request");
 const mrRef = n => (isGitHub() ? "#" : "!") + n;
 const displayKey = key => String(key).startsWith("!") ? mrRef(String(key).slice(1)) : key;
-const showUsage = () => data?.config?.["claude.usage_sidebar"]?.value !== false;
+const showUsage = () => data?.config?.["claude.live_usage"]?.value !== false;
 const hasJira = () => (data?.tracker || "none") === "jira";
 const canRunFix = () => !!conf("claude.fix_skill") && (conf("claude.skills") || []).includes(conf("claude.fix_skill")) && conf("claude.background_runs") !== false;
 const fill = (tpl, vars) => tpl ? tpl.replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? "") : "";

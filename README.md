@@ -96,7 +96,7 @@ Change them in *Settings → Keyboard shortcuts*: click a field and press the ke
 
 The sidebar shows the same numbers as Claude Code's *Account & Usage*: session (5 h), weekly and per-model limits, when each resets, and which account (email, organization, plan) they belong to. It needs a Claude subscription (Pro, Max, Team, Enterprise); with an API key there are no plan limits and the block stays hidden.
 
-Turn it off in *Settings → Claude → Claude usage in the sidebar*: the sidebar then shows CPU, RAM and swap, and Overview leaves out the machine tiles.
+Turn it off in *Settings → Claude → Live Claude usage*: then there are no limits at all — the sidebar shows CPU, RAM and swap instead, and Overview leaves out the machine tiles.
 
 **Live — every minute (on by default).** Opsboard asks Anthropic for your limits once a minute with Claude Code's own sign-in, the way Claude Code itself does. A green **LIVE** tag appears next to *Claude usage*.
 
@@ -106,10 +106,7 @@ Turn it off in *Settings → Claude → Claude usage in the sidebar*: the sideba
 - If anything goes wrong (expired sign-in, rejected, offline, rate-limited) the sidebar falls back to the saved numbers and says why under *Live usage:*.
 - This uses the same endpoint as Claude Code's *Account & Usage*; it is not a documented public API and may change.
 
-**Cache — when *Settings → Claude → Live Claude usage* is off.** Opsboard only reads what Claude Code saves in `~/.claude.json`, which it does only when it shows your usage:
-
-1. Run `/usage` in Claude Code once (or open *Account & Usage* in the VS Code extension). Until then the sidebar says *Run /usage in Claude Code once*.
-2. The numbers are as fresh as the last time Claude Code showed them — the sidebar adds *updated 3h ago* when they are older than 10 minutes and shows *Reset — open /usage to refresh* for a limit whose reset time has passed, instead of an old number.
+If the live request fails, the sidebar shows what Claude Code last saved in `~/.claude.json` (run `/usage` in Claude Code to refresh it): *updated 3h ago* when it is older than a few minutes, *Reset — open /usage to refresh* for a limit whose reset time has passed.
 
 ### Sessions page
 

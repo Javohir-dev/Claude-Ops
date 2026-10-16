@@ -211,7 +211,7 @@ class Handler(BaseHTTPRequestHandler):
                 if key in ("project.root", "jira.projects", "jira.jql"):
                     threading.Thread(target=lambda: detect.apply(detect.detect_all()[0]), daemon=True).start()
                     refresh_tasks.set()
-                elif key in ("claude.live_usage", "claude.usage_sidebar"):
+                elif key == "claude.live_usage":
                     threading.Thread(target=collect_claude_usage, daemon=True).start()
                 elif key in ("review.host", "tasks.tracker", "gitlab.url", "gitlab.project", "github.url", "github.repo", "jira.site", "jira.email"):
                     refresh_tasks.set()

@@ -64,11 +64,11 @@ class LiveUsageTest(unittest.TestCase):
     def write_token(self, expires_in):
         self.creds.write_text(json.dumps({"claudeAiOauth": {"accessToken": "test-oauth-token", "expiresAt": (time.time() + expires_in) * 1000}}))
 
-    def test_switched_off_uses_the_cache(self):
+    def test_switched_off_shows_no_limits(self):
         self.write_token(3600)
         cfg.set("claude.live_usage", False, "user")
         system.collect_claude_usage()
-        self.assertEqual(core.state["claude_usage"]["source"], "cache")
+        self.assertEqual(core.state["claude_usage"], {})
         self.assertEqual(SEEN, [])
 
     def test_live_by_default(self):

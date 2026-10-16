@@ -212,12 +212,13 @@ def collect_claude_usage():
     acct = raw.get("oauthAccount") or {}
     plan = str(acct.get("organizationType") or "").replace("_", " ").title().replace("Claude ", "Claude ")
     utilization, fetched, source, live_error = cached.get("utilization") or {}, (cached.get("fetchedAtMs") or 0) / 1000, "cache", ""
-    if cfg.get("claude.live_usage") and cfg.get("claude.usage_sidebar"):
-        live, live_error = claudeusage.fetch()
-        if live:
-            utilization, fetched, source = live, claudeusage.last_fetched(), "live"
-    else:
+    if not cfg.get("claude.live_usage"):
         claudeusage.reset()
+        put("claude_usage", {})
+        return
+    live, live_error = claudeusage.fetch()
+    if live:
+        utilization, fetched, source = live, claudeusage.last_fetched(), "live"
     limits = []
     for item in utilization.get("limits") or []:
         model = (((item.get("scope") or {}).get("model") or {}).get("display_name")) or ""
