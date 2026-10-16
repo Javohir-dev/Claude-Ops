@@ -41,7 +41,7 @@ DEFAULTS = {
     "claude.reply_language": "thread",
     "claude.fix_skill": "",
     "claude.usage_sidebar": True,
-    "claude.live_usage": False,
+    "claude.live_usage": True,
     "refresh.tasks_seconds": 300,
 }
 SECRETS = ("jira.token", "gitlab.token", "github.token")

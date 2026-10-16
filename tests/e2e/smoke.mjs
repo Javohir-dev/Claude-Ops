@@ -26,7 +26,7 @@ const started = Date.now() / 1000 - 600;
 writeFileSync(join(data, "runs.json"), JSON.stringify([{ id: "r1", iid: 7, name: "fix !7", prompt: "/fix 7", pid: 999999, started, ended: started + 300, status: "done", exited: true, log: join(data, "none.jsonl") }]));
 writeFileSync(join(data, "notifications.json"), JSON.stringify([{ id: "n1", kind: "run", run_id: "r1", iid: 7, name: "fix !7", status: "done", outcome: { status: "pushed", commit: "a1b2c3d" }, error: "", mr_title: "", at: started + 300, read: false }]));
 const server = spawn(process.env.PYTHON || "python3", [join(root, "server.py"), "--port", String(port)], {
-  env: { ...process.env, OPS_DATA_DIR: data, OPS_SECRET_STORE: "file", OPS_HIS_ROOT: root, OPS_NO_OS_NOTIFY: "1" },
+  env: { ...process.env, OPS_DATA_DIR: data, OPS_SECRET_STORE: "file", OPS_HIS_ROOT: root, OPS_CLAUDE_CREDENTIALS: join(data, "none.json"), OPS_ANTHROPIC_URL: "http://127.0.0.1:9", OPS_NO_OS_NOTIFY: "1" },
   stdio: "ignore",
 });
 const failures = [];
@@ -103,7 +103,7 @@ try {
   }));
   const hubPort = port + 1;
   const hub = spawn(process.env.PYTHON || "python3", [join(root, "server.py"), "--port", String(hubPort)], {
-    env: { ...process.env, OPS_DATA_DIR: hubData, OPS_SECRET_STORE: "file", OPS_HIS_ROOT: root },
+    env: { ...process.env, OPS_DATA_DIR: hubData, OPS_SECRET_STORE: "file", OPS_HIS_ROOT: root, OPS_CLAUDE_CREDENTIALS: join(data, "none.json"), OPS_ANTHROPIC_URL: "http://127.0.0.1:9" },
     stdio: "ignore",
   });
   try {

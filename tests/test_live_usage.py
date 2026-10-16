@@ -47,6 +47,7 @@ class LiveUsageTest(unittest.TestCase):
     def setUp(self):
         data = Path(os.environ["OPS_DATA_DIR"])
         self.creds = data / "credentials.json"
+        self.saved = (claudeusage.CREDENTIALS_FILE, system.CLAUDE_STATE, os.environ["OPS_CLAUDE_CREDENTIALS"])
         claudeusage.CREDENTIALS_FILE = self.creds
         os.environ["OPS_CLAUDE_CREDENTIALS"] = str(self.creds)
         system.CLAUDE_STATE = data / "claude.json"
@@ -57,20 +58,22 @@ class LiveUsageTest(unittest.TestCase):
         REPLY["code"] = 200
 
     def tearDown(self):
-        os.environ.pop("OPS_CLAUDE_CREDENTIALS", None)
+        claudeusage.CREDENTIALS_FILE, system.CLAUDE_STATE, os.environ["OPS_CLAUDE_CREDENTIALS"] = self.saved
+        claudeusage.reset()
 
     def write_token(self, expires_in):
         self.creds.write_text(json.dumps({"claudeAiOauth": {"accessToken": "test-oauth-token", "expiresAt": (time.time() + expires_in) * 1000}}))
 
-    def test_off_by_default_uses_the_cache(self):
+    def test_switched_off_uses_the_cache(self):
         self.write_token(3600)
+        cfg.set("claude.live_usage", False, "user")
         system.collect_claude_usage()
         self.assertEqual(core.state["claude_usage"]["source"], "cache")
         self.assertEqual(SEEN, [])
 
-    def test_live_when_switched_on(self):
+    def test_live_by_default(self):
         self.write_token(3600)
-        cfg.set("claude.live_usage", True, "user")
+        cfg.set("claude.live_usage", None, "user")
         system.collect_claude_usage()
         usage = core.state["claude_usage"]
         self.assertEqual((usage["source"], usage["limits"][0]["percent"]), ("live", 57))
