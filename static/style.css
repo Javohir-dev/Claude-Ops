@@ -349,7 +349,7 @@ kbd { font-family: var(--mono); font-size: var(--fs-xs); background: var(--panel
 .check .checkact:hover { border-color: var(--accent); color: var(--accent); }
 .check .checkact.bad { background: color-mix(in srgb, var(--bad) 16%, transparent); border-color: transparent; color: var(--bad); }
 section[id^="sec-"] { scroll-margin-top: 64px; }
-section.flash > .panel, .item.flash { animation: flash 1.4s ease-out; }
+section.flash > .panel { animation: flash 1.4s ease-out; }
 @keyframes flash { 0%, 30% { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent); } 100% { box-shadow: 0 0 0 0 transparent; } }
 select { -webkit-appearance: none; appearance: none; padding-right: 40px !important; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b95a3' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") !important; background-repeat: no-repeat !important; background-position: right 12px center !important; background-size: 12px !important; cursor: pointer; }
 .smap select { font: inherit; font-size: var(--fs-md); color: var(--text); background-color: var(--panel2); border: 1px solid var(--line); border-radius: var(--r-sm); padding: 6px 12px; }

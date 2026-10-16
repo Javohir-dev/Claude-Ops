@@ -85,6 +85,18 @@ function markNotifsRead(ids) {
   notifAction({ action: "read", ids: ids || null });
 }
 
+function blink(el) {
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const accent = getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#3b6fe0";
+  const glow = accent + "33", ring = `inset 0 0 0 2px ${accent}`;
+  el.animate([
+    { backgroundColor: "transparent", boxShadow: "inset 0 0 0 2px transparent" },
+    { backgroundColor: glow, boxShadow: ring, offset: 0.35 },
+    { backgroundColor: glow, boxShadow: ring, offset: 0.55 },
+    { backgroundColor: "transparent", boxShadow: "inset 0 0 0 2px transparent" },
+  ], { duration: 1800, delay: 450, easing: "ease-in-out" });
+}
+
 function openNotif(id) {
   const n = notifs().find(x => x.id === id);
   if (!n) return;
@@ -92,10 +104,9 @@ function openNotif(id) {
   closeNotifPanel();
   ui.focusRun = n.run_id;
   if (route().page !== "overview") location.hash = "#/"; else render();
-  ui.flashRun = { id: n.run_id, until: Date.now() + 1600 };
   setTimeout(() => {
-    const el = document.querySelector(`[data-run="${CSS.escape(n.run_id)}"]`);
-    if (el) el.scrollIntoView({ block: "center", behavior: "smooth" });
+    const el = (n.iid && document.querySelector(`#view [data-mr="${n.iid}"]`)) || document.querySelector(`#view [data-run="${CSS.escape(n.run_id)}"]`);
+    if (el) { el.scrollIntoView({ block: "center", behavior: "smooth" }); blink(el); }
   }, 120);
 }
 

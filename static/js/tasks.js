@@ -133,8 +133,7 @@ function runsSection(limit = 8) {
     const doing = ses && ses.doing ? `${ses.doing.tool}: ${ses.doing.what}` : ses && ses.running && ses.running.length ? `${plural(ses.running.length, "agent")} running` : "";
     const key = "run:" + r.id;
     const result = r.result ? `<div class="s clickable pre-wrap ${expanded.has(key) ? "" : "clamp"}" data-expand="${esc(key)}" title="click to expand">${esc(r.result)}</div>` : "";
-    const flash = ui.flashRun?.id === r.id && ui.flashRun.until > Date.now() ? " flash" : "";
-    return `<div class="item titem${flash}" data-run="${esc(r.id)}"><span class="dot ${dot}"></span><div class="grow">
+    return `<div class="item titem" data-run="${esc(r.id)}"><span class="dot ${dot}"></span><div class="grow">
       <div class="t">${ses ? `<a href="#/s/${esc(ses.id)}">${esc(r.name)}</a>` : esc(r.name)}</div>
       ${mr ? `<div class="mrline"><a href="${esc(mr.url)}" target="_blank"><span class="iid">${mrRef(mr.iid)}</span> ${esc(mr.title)}</a></div>` : ""}
       ${doing ? `<div class="s">${esc(doing)}</div>` : ""}${outcomeLine(r.outcome)}${result}</div>
