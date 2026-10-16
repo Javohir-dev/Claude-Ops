@@ -22,8 +22,11 @@ writeFileSync(join(data, "config.json"), JSON.stringify({
   },
   secrets: { "gitlab.token": "test-gitlab-token", "jira.token": "test-jira-token" },
 }));
+const started = Date.now() / 1000 - 600;
+writeFileSync(join(data, "runs.json"), JSON.stringify([{ id: "r1", iid: 7, name: "fix !7", prompt: "/fix 7", pid: 999999, started, ended: started + 300, status: "done", exited: true, log: join(data, "none.jsonl") }]));
+writeFileSync(join(data, "notifications.json"), JSON.stringify([{ id: "n1", kind: "run", run_id: "r1", iid: 7, name: "fix !7", status: "done", outcome: { status: "pushed", commit: "a1b2c3d" }, error: "", mr_title: "", at: started + 300, read: false }]));
 const server = spawn(process.env.PYTHON || "python3", [join(root, "server.py"), "--port", String(port)], {
-  env: { ...process.env, OPS_DATA_DIR: data, OPS_SECRET_STORE: "file", OPS_HIS_ROOT: root },
+  env: { ...process.env, OPS_DATA_DIR: data, OPS_SECRET_STORE: "file", OPS_HIS_ROOT: root, OPS_NO_OS_NOTIFY: "1" },
   stdio: "ignore",
 });
 const failures = [];
@@ -41,6 +44,20 @@ try {
     const stayed = new URL(page.url()).hash === `#/${route}`;
     check(stayed && (await page.locator("#view h1, #view section").count()) > 0, `page ${route || "overview"} renders`);
   }
+  await page.goto(`${base}/#/`);
+  await page.waitForTimeout(1200);
+  const bell = page.locator(".sidebar [data-bell]");
+  check((await bell.locator(".bcount").textContent()) === "1", "the bell counts the unread notification");
+  check((await page.title()) === "(1) Opsboard", "the tab title shows the unread count");
+  await bell.click();
+  check(await page.locator("#npanel").isVisible(), "the bell opens the notification panel");
+  check((await page.locator("#npanel .nhead").first().textContent()) === "Fix pushed · !7", "a finished fix is listed");
+  await page.locator("#npanel [data-notif-open]").first().click();
+  await page.waitForTimeout(600);
+  check(await page.locator("#npanel").isHidden(), "opening a notification closes the panel");
+  check(await bell.locator(".bcount").isHidden(), "opening a notification marks it read");
+  check((await page.locator('#view [data-run="r1"]').count()) === 1, "the finished run is shown on Overview");
+  check(JSON.parse(readFileSync(join(data, "notifications.json"), "utf8"))[0].read === true, "read state is saved on the server");
   await page.goto(`${base}/#/notes`);
   await page.waitForTimeout(800);
   await page.click("[data-nadd]");

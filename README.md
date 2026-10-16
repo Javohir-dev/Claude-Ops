@@ -180,6 +180,10 @@ The dialog turns into a call like `/<skill> 7264 push skip-tests`:
 
 Follow it under **Background runs** on Overview or Tasks; **Stop** kills it. Turn the action off in *Settings → Claude → Background runs*.
 
+When a run finishes, the **bell** next to the logo (top right on a phone) shows a red count and the tab title gets `(1)`. Click it to see what the run did — pushed, committed, stopped or failed, with the commit, threads and checks — and click an entry to jump to the run on Overview. Runs you stop yourself are not announced.
+
+Desktop alerts: in the bell panel press **Turn on** once and allow notifications in the browser; the alert opens the dashboard when clicked. With no dashboard tab showing alerts (closed, or alerts not allowed), Opsboard posts a system notification itself — Notification Center on macOS, `notify-send` on Linux.
+
 Skills talk to GitLab through `opsboard review`, so they need no token or API code of their own, and it refuses to touch merge requests you did not open:
 
 ```bash
@@ -217,6 +221,7 @@ Everything lives in the checkout folder (`opsboard home` prints it; `~/.opsboard
 | `profile.local.json` | your additions to the project profile |
 | `notes.json`, `notes-history/` | your notes and their last 50 versions (`chmod 600`) |
 | `runs/`, `runs.json` | background fix runs and their logs |
+| `notifications.json` | the bell's notifications (last 100) |
 | `mr-modules.json`, `key-aliases.json` | caches |
 | `server.log`, `opsboard.log` | start-up output; server log (rotated at 1 MB, 3 kept) |
 

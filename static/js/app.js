@@ -55,6 +55,7 @@ function render() {
   markScrollers();
   hideEmptyColumns();
   labelDots();
+  renderBell();
 }
 
 function keepsLocalState(el) {
@@ -111,7 +112,7 @@ addEventListener("resize", masonry);
 
 async function tick() {
   try {
-    data = await (await fetch("/api/state", { cache: "no-store" })).json();
+    data = await (await fetch("/api/state" + (canAlert() ? "?alerts=1" : ""), { cache: "no-store" })).json();
     clockSkew = Date.now() / 1000 - data.now;
     if (await loadLanguage()) { if (ui.translatedStatic) return location.reload(); translateTree(document.body); watchTranslations(); ui.translatedStatic = true; }
     if (!ui.booted) {

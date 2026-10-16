@@ -16,6 +16,7 @@ import config as cfg
 import demo
 import detect
 import machine
+import notify
 import stackprofile as profile
 from core import DATA, HERE, gitlab_url, lock, log, loop, run, setup_logging, state
 from notes import load_marks, load_notes, notes_lock, save_notes, set_mark
@@ -52,6 +53,7 @@ def snapshot():
         home = str(Path.home())
         data["paths"] = {k: str(v).replace(home, "~", 1) for k, v in (("config", cfg.CONFIG_FILE), ("home", HERE))}
         data["profiles"] = profile.names()
+        data["notifications"] = notify.load()
         return redact(json.dumps(data, default=str))
 
 
@@ -128,6 +130,20 @@ class Handler(BaseHTTPRequestHandler):
                 set_mark(str(body.get("key", "")), body.get("color") or None)
                 out = {"ok": True}
             except (ValueError, OSError) as exc:
+                out = {"ok": False, "error": str(exc)}
+            self.send(json.dumps(out), "application/json")
+        elif self.path.startswith("/api/notifications"):
+            try:
+                body = json.loads(self.rfile.read(int(self.headers.get("Content-Length") or 0)) or b"{}")
+                if body.get("action") == "clear":
+                    notify.clear()
+                elif body.get("action") == "read":
+                    ids = body.get("ids")
+                    notify.mark_read({str(i) for i in ids} if isinstance(ids, list) else None)
+                else:
+                    raise ValueError("unknown action")
+                out = {"ok": True}
+            except ValueError as exc:
                 out = {"ok": False, "error": str(exc)}
             self.send(json.dumps(out), "application/json")
         elif self.path.startswith("/api/run-stop"):
@@ -279,6 +295,7 @@ class Handler(BaseHTTPRequestHandler):
         elif self.path.startswith("/api/doctor"):
             self.send(redact(json.dumps(demo.DOCTOR if DEMO else detect.doctor())), "application/json")
         elif self.path.startswith("/api/state"):
+            notify.page_seen("alerts=1" in self.path)
             self.send(snapshot(), "application/json")
         elif self.path.startswith("/static/"):
             self.send_static(self.path.split("?")[0][len("/static/") :])
@@ -318,6 +335,8 @@ def serve_demo(port):
             cfg.set(key, value, "user", "demo")
         cfg.set_secret("github.token", "demo-github-token")
         cfg.set_secret("jira.token", "demo-jira-token")
+    if not notify.FILE.exists():
+        notify.FILE.write_text(json.dumps(demo.notifications(time.time())))
     ALLOWED_HOSTS.update({f"127.0.0.1:{port}", f"localhost:{port}"})
     page_token()
     log.info("demo mode on http://127.0.0.1:%s/", port)

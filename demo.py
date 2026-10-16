@@ -389,6 +389,24 @@ DEMO_CONFIG = {
 }
 
 
+def notifications(now):
+    return [
+        {
+            "id": "n1",
+            "kind": "run",
+            "run_id": "r1",
+            "iid": 409,
+            "name": "fix-review !409 push",
+            "status": "done",
+            "outcome": {"status": "pushed", "commit": "a1b2c3d", "threads": {"resolved": 3, "open": 0}, "checks": "tests 128/128"},
+            "error": "",
+            "mr_title": "Fix rounding in cart totals",
+            "at": now - 4 * 3600,
+            "read": False,
+        },
+    ]
+
+
 DOCTOR = [
     {"id": "project", "ok": True, "detail": "/home/dev/acme-shop", "fix": ""},
     {"id": "github", "ok": True, "detail": "dev @ https://github.com/acme/shop", "fix": ""},

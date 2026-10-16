@@ -9,6 +9,8 @@ jira.json
 server.log
 runs/
 runs.json
+notifications.json
+notifications.tmp
 marks.json
 notes.json
 notes.tmp

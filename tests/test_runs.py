@@ -16,7 +16,12 @@ class RefreshRunsTest(unittest.TestCase):
         self.proc = subprocess.Popen(["sleep", "30"])
         popen[self.proc.pid] = self.proc
         self.store = []
-        patches = [mock.patch.object(runs, "load_runs", lambda: self.store), mock.patch.object(runs, "save_runs", lambda r: None)]
+        self.notified = []
+        patches = [
+            mock.patch.object(runs, "load_runs", lambda: self.store),
+            mock.patch.object(runs, "save_runs", lambda r: None),
+            mock.patch.object(runs.notify, "run_finished", lambda r, title="": self.notified.append(r["status"])),
+        ]
         for p in patches:
             p.start()
             self.addCleanup(p.stop)
@@ -40,10 +45,22 @@ class RefreshRunsTest(unittest.TestCase):
         runs.refresh_runs()
         self.assertEqual(r["status"], "running")
         self.assertEqual(r["result"], "second")
+        self.assertEqual(self.notified, [])
         self.proc.kill()
         self.proc.wait()
         runs.refresh_runs()
+        runs.refresh_runs()
         self.assertEqual(r["status"], "done")
+        self.assertEqual(self.notified, ["done"])
+
+    def test_stopped_by_you_is_not_notified(self):
+        self.write({"type": "result", "result": "turn"})
+        r = self.run_entry()
+        r["stop_requested"] = True
+        self.proc.kill()
+        self.proc.wait()
+        runs.refresh_runs()
+        self.assertEqual((r["status"], self.notified), ("stopped", []))
 
     def test_done_but_alive_is_reopened(self):
         self.write({"type": "result", "result": "turn"})

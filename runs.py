@@ -8,6 +8,7 @@ import uuid
 from pathlib import Path
 
 import config as cfg
+import notify
 from core import RUNS_DIR, RUNS_FILE, alive, claude_bin, lock, popen, project_root, runs_lock, state
 
 RE_RESULT = re.compile(r"^OPS_RESULT\s+(\{.*\})\s*$", re.M)
@@ -117,6 +118,7 @@ def refresh_runs():
     with runs_lock:
         runs = load_runs()
         changed = False
+        finished = []
         for r in runs:
             recent = time.time() - r.get("started", 0) < 86400
             if r["status"] in ("done", "error") and recent and not r.get("exited") and _same_process(r):
@@ -155,8 +157,15 @@ def refresh_runs():
                 r.update(status="stopped" if r.get("stop_requested") else status, ended=time.time(), exited=True)
                 popen.pop(r["pid"], None)
                 changed = True
+                if r["status"] != "stopped":
+                    finished.append(r)
         if changed:
             save_runs(runs)
+    if finished:
+        with lock:
+            titles = {m["iid"]: m.get("title", "") for m in (state.get("review") or {}).get("mrs", [])}
+        for r in finished:
+            notify.run_finished(r, titles.get(r.get("iid"), ""))
     return runs
 
 
