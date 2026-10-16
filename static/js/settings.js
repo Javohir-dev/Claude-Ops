@@ -155,6 +155,7 @@ function pageSettings() {
       ${field("claude.background_runs", "Background runs", { type: "toggle", help: "Let the dashboard start the fix skill in the background." })}
       ${field("claude.permission_mode", "Permission mode", { type: "select", options: [["auto", "auto"], ["acceptEdits", "acceptEdits"], ["manual", "manual"]], help: "Used by background runs." })}
       ${field("claude.reply_language", "Reply language", { type: "select", options: [["thread", "Same as the review thread"], ["uz", "Uzbek"], ["ru", "Russian"], ["en", "English"]], help: "Passed to the fix skill as <code>OPS_REPLY_LANGUAGE</code> for its thread replies." })}
+      ${field("claude.usage_sidebar", "Claude usage in the sidebar", { type: "toggle", help: "Your plan limits under the menu. Off: the sidebar shows CPU, RAM and swap instead, and Overview leaves out the machine tiles." })}
       ${field("claude.live_usage", "Live Claude usage", { type: "toggle", help: "Ask Anthropic for your plan limits every minute with Claude Code's own sign-in, instead of waiting for Claude Code to refresh its cache. The token is read from the Keychain (macOS asks once — choose <i>Always Allow</i>), kept in memory only and never renewed here." })}
     </div></section>
     <section id="sec-keys"><h2>Keyboard shortcuts<span class="h2-actions"><span class="fmsg" id="msg-hk"></span><button class="linkbtn" data-hk-reset="1">Reset to defaults</button></span></h2><div class="panel form">

@@ -212,7 +212,7 @@ def collect_claude_usage():
     acct = raw.get("oauthAccount") or {}
     plan = str(acct.get("organizationType") or "").replace("_", " ").title().replace("Claude ", "Claude ")
     utilization, fetched, source, live_error = cached.get("utilization") or {}, (cached.get("fetchedAtMs") or 0) / 1000, "cache", ""
-    if cfg.get("claude.live_usage"):
+    if cfg.get("claude.live_usage") and cfg.get("claude.usage_sidebar"):
         live, live_error = claudeusage.fetch()
         if live:
             utilization, fetched, source = live, claudeusage.last_fetched(), "live"

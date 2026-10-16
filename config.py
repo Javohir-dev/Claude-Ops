@@ -40,6 +40,7 @@ DEFAULTS = {
     "claude.permission_mode": "auto",
     "claude.reply_language": "thread",
     "claude.fix_skill": "",
+    "claude.usage_sidebar": True,
     "claude.live_usage": False,
     "refresh.tasks_seconds": 300,
 }

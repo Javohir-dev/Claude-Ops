@@ -5,6 +5,7 @@ All notable changes. Versions follow [semantic versioning](https://semver.org/);
 ## Unreleased
 
 ### Added
+- *Settings → Claude → Claude usage in the sidebar* (on by default). Off: the sidebar shows CPU, RAM and swap, and Overview leaves out the machine tiles.
 - **Notifications:** a bell next to the logo counts finished fix runs (pushed, committed, stopped, failed); click an entry to open the run. Optional browser alerts, and a system notification (macOS Notification Center, `notify-send` on Linux) when no dashboard tab is showing them.
 - *Settings → Claude → Live Claude usage* (off by default): plan limits every minute with Claude Code's own sign-in, falling back to the cache when it is missing, expired or rejected.
 - README section *Claude usage* with setup and troubleshooting; the sidebar tells you to run `/usage` when there is nothing saved yet.

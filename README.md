@@ -96,6 +96,8 @@ Change them in *Settings → Keyboard shortcuts*: click a field and press the ke
 
 The sidebar shows the same numbers as Claude Code's *Account & Usage*: session (5 h), weekly and per-model limits, when each resets, and which account (email, organization, plan) they belong to. It needs a Claude subscription (Pro, Max, Team, Enterprise); with an API key there are no plan limits and the block stays hidden.
 
+Turn it off in *Settings → Claude → Claude usage in the sidebar*: the sidebar then shows CPU, RAM and swap, and Overview leaves out the machine tiles.
+
 **Default — nothing to set up.** Opsboard reads what Claude Code saves in `~/.claude.json`. Claude Code saves it only when it shows your usage, so:
 
 1. Run `/usage` in Claude Code once (or open *Account & Usage* in the VS Code extension). Until then the sidebar says *Run /usage in Claude Code once*.
