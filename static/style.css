@@ -583,3 +583,4 @@ main { margin-left: var(--sidebar); padding: 24px 32px 64px; max-width: 1680px; 
 .hstats .uacct { display: flex; flex-direction: column; gap: 1px; min-width: 0; margin-top: -2px; }
 .hstats .uemail { color: var(--text); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .hstats .uorg { font-size: var(--fs-xs); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hstats .meter.stale .mrow span, .hstats .meter.stale b { color: var(--muted); }

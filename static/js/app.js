@@ -36,8 +36,13 @@ function render() {
   const errs = Object.entries(data).filter(([k]) => k.startsWith("error_"));
   const cu = data.claude_usage || {};
   const usageColor = l => l.severity === "critical" || l.percent >= 95 ? "var(--bad)" : l.severity === "warning" || l.percent >= 80 ? "var(--warn)" : "var(--usage)";
-  const usage = (cu.limits || []).map(l => `<div class="meter"><div class="mrow"><span>${esc(l.label)}</span><b>${l.percent}%</b></div><div class="mbar"><span style="width:${Math.min(100, l.percent)}%;background:${usageColor(l)}"></span></div>${l.resets_at ? `<div class="reset" title="${esc(fmtDateTime(l.resets_at))}">Resets in ${dur(Math.max(0, l.resets_at - now()))}</div>` : ""}</div>`).join("");
-  const stale = cu.fetched && now() - cu.fetched > 1800 ? `<div class="reset" title="Claude Code refreshes these numbers while it runs">updated ${ago(cu.fetched)}</div>` : "";
+  const usage = (cu.limits || []).map(l => {
+    const past = l.resets_at && l.resets_at < now();
+    const head = `<div class="mrow"><span>${esc(l.label)}</span><b>${past ? "—" : l.percent + "%"}</b></div><div class="mbar"><span style="width:${past ? 0 : Math.min(100, l.percent)}%;background:${usageColor(l)}"></span></div>`;
+    const foot = past ? `<div class="reset" title="Claude Code refreshes these numbers when you open Account & Usage or run /usage">Reset — open /usage to refresh</div>` : l.resets_at ? `<div class="reset" title="${esc(fmtDateTime(l.resets_at))}">Resets in ${dur(Math.max(0, l.resets_at - now()))}</div>` : "";
+    return `<div class="meter ${past ? "stale" : ""}">${head}${foot}</div>`;
+  }).join("");
+  const stale = cu.fetched && now() - cu.fetched > 600 ? `<div class="reset" title="Claude Code refreshes these numbers when you open Account & Usage or run /usage">updated ${ago(cu.fetched)}</div>` : "";
   patch($("hstats"), `${usage ? `<div class="utitle">Claude usage</div>${cu.account?.email ? `<div class="uacct" title="${esc([cu.account.email, cu.account.org, cu.account.plan].filter(Boolean).join(" · "))}"><span class="uemail" translate="no">${esc(cu.account.email)}</span>${cu.account.org || cu.account.plan ? `<span class="uorg" translate="no">${esc([cu.account.org, cu.account.plan].filter(Boolean).join(" · "))}</span>` : ""}</div>` : ""}${usage}${stale}` : ""}${errs.length ? `<div class="err fs-sm" title="${esc(errs.map(e => e.join(": ")).join("\n"))}">${errs.length} collector error(s)</div>` : ""}${data.version?.update ? `<a class="badge warn" href="#/settings" title="Run opsboard update">${esc(data.version.latest)} available</a>` : ""}`);
   $("ver").textContent = data.version?.current ? "v" + data.version.current : "";
   const pages = { overview: pageOverview, sessions: pageSessions, s: c => pageSession(c, r.arg), docker: pageDocker, postgres: pagePostgres, tasks: pageTasks, mrs: pageMrs, worktrees: pageWorktrees, processes: pageProcesses, settings: pageSettings, notes: pageNotes };

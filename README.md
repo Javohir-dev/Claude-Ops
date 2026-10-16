@@ -10,7 +10,7 @@ One browser tab shows:
 - **Tasks** — your Jira tasks (or just the task keys in your titles) joined with your merge / pull requests: status columns, open review threads, merge conflicts, which Claude session works on which task, colour marks, and a one-click background fix run with your own skill.
 - **Merge / pull requests** — GitLab or GitHub, as in their own list: Open / Merged / Closed tabs, labels, pipeline or checks, reviewers, approvals and review threads.
 - **Docker / Postgres / Worktrees** — running containers, database connections and slow queries, worktrees with uncommitted changes, and leftovers whose worktree is gone.
-- **Claude usage** — your plan limits (session, weekly, per model) with reset times, read from what Claude Code itself caches in `~/.claude.json` — no token or setup needed.
+- **Claude usage** — your plan limits (session, weekly, per model) with reset times, read from what Claude Code itself caches in `~/.claude.json` — no token or setup needed. Claude Code refreshes that cache when you open *Account & Usage* or run `/usage`, so the numbers can be hours old; the sidebar says so, and hides a limit whose reset time has passed.
 - **Machine** — CPU, RAM, swap, GPU, disk, network and power.
 - **Notes** — a personal checklist (ToDo / Warning / Done, nesting, dividers) with live Jira status next to every task key.
 
