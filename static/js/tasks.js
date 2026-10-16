@@ -105,7 +105,7 @@ function notesTodoSection() {
   const items = NOTES.items.filter(i => i.kind === "item" && (i.text.trim() || keep.has(i.id) || i.id === ui.notesFocus?.id) && (all || i.tag === "todo" || keep.has(i.id)));
   const todo = NOTES.items.filter(i => i.kind === "item" && i.tag === "todo").length;
   const TAG = { todo: ["t-todo", "ToDo"], warn: ["t-warn", icon("warning", 14)], done: ["t-done", "Done"] };
-  return `<section><h2>Notes · to do<span class="count">${todo || ""}</span><label class="minisw ml-auto" title="Show every note, not only ToDo"><input type="checkbox" data-pref="overviewNotesAll" ${all ? "checked" : ""}><span class="tog"></span>show all</label><a href="#/notes" class="h2-actions">Open Notes →</a></h2>
+  return `<section><h2>Notes · to do<span class="count">${todo || ""}</span><span class="h2-actions"><label class="minisw m-0" title="Show every note, not only ToDo"><input type="checkbox" data-pref="overviewNotesAll" ${all ? "checked" : ""}><span class="tog"></span>show all</label><a href="#/notes">Open Notes →</a></span></h2>
     <div class="panel list ovnotes">${items.map(it => {
       const t = TAG[it.tag];
       return `<div class="ovnote nrow ${isDone(it) ? "done" : ""}" style="padding-left:${14 + Math.min(it.indent || 0, 4) * 18}px"><button class="ntag ${t ? t[0] : "t-none"}" data-ntag="${it.id}" title="Choose a tag">${t ? t[1] : "+"}<span class="caret">▾</span></button><div class="ntext ovtext" contenteditable="plaintext-only" spellcheck="false" data-ntext="${it.id}">${esc(it.text)}</div>${noteKeys(it.text).map(noteKeyChip).join("")}<span class="muted ovdate">${noteDate(it.created)}</span></div>`;
