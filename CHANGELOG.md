@@ -6,6 +6,8 @@ All notable changes. Versions follow [semantic versioning](https://semver.org/);
 
 ### Added
 - *Settings → Claude → Live Claude usage* (off by default): plan limits every minute with Claude Code's own sign-in, falling back to the cache when it is missing, expired or rejected.
+- README section *Claude usage* with setup and troubleshooting; the sidebar tells you to run `/usage` when there is nothing saved yet.
+- Agents cannot switch *Live Claude usage* on through `opsboard config` (`--source agent` is refused); the setup prompt tells Claude never to read Claude Code's sign-in.
 
 ### Changed
 - Overview starts with the machine; task attention stays on the Tasks page. Expired limits are no longer shown as current.

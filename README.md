@@ -10,7 +10,7 @@ One browser tab shows:
 - **Tasks** — your Jira tasks (or just the task keys in your titles) joined with your merge / pull requests: status columns, open review threads, merge conflicts, which Claude session works on which task, colour marks, and a one-click background fix run with your own skill.
 - **Merge / pull requests** — GitLab or GitHub, as in their own list: Open / Merged / Closed tabs, labels, pipeline or checks, reviewers, approvals and review threads.
 - **Docker / Postgres / Worktrees** — running containers, database connections and slow queries, worktrees with uncommitted changes, and leftovers whose worktree is gone.
-- **Claude usage** — your plan limits (session, weekly, per model) with reset times, read from what Claude Code itself caches in `~/.claude.json` — no token or setup needed. Claude Code refreshes that cache when you open *Account & Usage* or run `/usage`, so the numbers can be hours old; the sidebar says so, and hides a limit whose reset time has passed. Turn on *Settings → Claude → Live Claude usage* to ask Anthropic every minute with Claude Code's own sign-in instead (read from the Keychain — macOS asks once; kept in memory only, never renewed or stored by Opsboard).
+- **Claude usage** — your plan limits (session, weekly, per model) with reset times and the account they belong to, in the sidebar. See [Claude usage](#claude-usage).
 - **Machine** — CPU, RAM, swap, GPU, disk, network and power.
 - **Notes** — a personal checklist (ToDo / Warning / Done, nesting, dividers) with live Jira status next to every task key.
 
@@ -91,6 +91,23 @@ Press **`?`** anywhere for the list. Defaults (press `g`, then the letter):
 | Tasks | `g t` | Merge requests | `g m` |
 
 Change them in *Settings → Keyboard shortcuts*: click a field and press the keys (`alt+1`, `cmd+shift+k`, `t`…). Plain keys are ignored while you type; shortcuts with `alt` / `ctrl` / `cmd` work everywhere.
+
+### Claude usage
+
+The sidebar shows the same numbers as Claude Code's *Account & Usage*: session (5 h), weekly and per-model limits, when each resets, and which account (email, organization, plan) they belong to. It needs a Claude subscription (Pro, Max, Team, Enterprise); with an API key there are no plan limits and the block stays hidden.
+
+**Default — nothing to set up.** Opsboard reads what Claude Code saves in `~/.claude.json`. Claude Code saves it only when it shows your usage, so:
+
+1. Run `/usage` in Claude Code once (or open *Account & Usage* in the VS Code extension). Until then the sidebar says *Run /usage in Claude Code once*.
+2. The numbers are as fresh as the last time Claude Code showed them — the sidebar adds *updated 3h ago* when they are older than 10 minutes and shows *Reset — open /usage to refresh* for a limit whose reset time has passed, instead of an old number.
+
+**Live — every minute (optional).** *Settings → Claude → Live Claude usage* asks Anthropic for your limits once a minute with Claude Code's own sign-in, the way Claude Code itself does. A green **LIVE** tag appears next to *Claude usage*.
+
+- **macOS:** the sign-in is in the Keychain item *Claude Code-credentials*. The first time, macOS asks whether `security` may read it — choose **Always Allow**. (Plain *Allow* works too, but macOS asks again each time Claude Code renews its sign-in.)
+- **Linux:** it is read from `~/.claude/.credentials.json`; nothing to confirm.
+- Opsboard keeps the sign-in in memory only, sends it nowhere but `api.anthropic.com`, never writes or shows it, and never renews it — when it expires, open Claude Code once and live numbers come back.
+- If anything goes wrong (expired sign-in, rejected, offline, rate-limited) the sidebar falls back to the saved numbers and says why under *Live usage:*.
+- This uses the same endpoint as Claude Code's *Account & Usage*; it is not a documented public API and may change. Turn the switch off to stop it.
 
 ### Sessions page
 
@@ -227,6 +244,11 @@ opsboard detect                           # what would be detected (add --apply 
 | Postgres card is red | *Settings → Workspace → Postgres container*, or **Re-detect** with Docker running |
 | Linux: no folder dialog | install `zenity` (or `kdialog`), or use **type path** |
 | Docker card says not running | macOS: **Start Docker**; Linux: `sudo systemctl start docker` |
+| No *Claude usage* in the sidebar | run `/usage` in Claude Code once; with an API key (no subscription) there are no plan limits to show |
+| Claude usage says *updated 18h ago* or *Reset — open /usage* | run `/usage` in Claude Code, or turn on *Live Claude usage* |
+| *Live usage: … not allowed* | macOS denied Keychain access: turn the switch off and on, then choose **Always Allow** in the dialog |
+| *Live usage: … sign-in has expired* | open Claude Code once (it renews its own sign-in); Opsboard never renews it |
+| macOS keeps asking for the Keychain | you chose *Allow* instead of *Always Allow* — choose **Always Allow** once |
 
 ## 7. Uninstall
 

@@ -86,7 +86,8 @@ const SETUP_PROMPT = `Set up Opsboard (a local dashboard, CLI: opsboard) for thi
    db.container / db.user if the project runs Postgres in Docker.
 5. Tokens: never ask me to paste a token into the chat. Tell me which ones are needed and to run, in my own terminal: \`opsboard secret set gitlab.token\` (or github.token, jira.token). Wait until I say it is done.
 6. Fix skill: if \`opsboard config get claude.skills\` shows a skill that fixes review threads, set claude.fix_skill to it. Otherwise offer — do not do it unasked — to write one in .claude/skills/fix-review from examples/fix-skill/SKILL.md in \`opsboard home\`, filling in this project's test and lint commands, and check it with \`opsboard skill check fix-review\`.
-7. Finish with \`opsboard doctor\` and tell me in one short list what is set, what is still missing and why.`;
+7. Claude usage: never read Claude Code's own sign-in (the Keychain item "Claude Code-credentials" or ~/.claude/.credentials.json) and never change claude.live_usage yourself. If the sidebar has no Claude usage, tell me to run /usage once; if I want it live, tell me to switch on Settings → Claude → Live Claude usage myself and choose Always Allow when macOS asks.
+8. Finish with \`opsboard doctor\` and tell me in one short list what is set, what is still missing and why.`;
 function setupBox(open) {
   return `<details class="panel setupclaude" ${open ? "open" : ""}><summary><b>Set up with Claude</b><span class="muted">Paste this into Claude Code in your project folder — it fills these settings for you.</span></summary>
     <pre class="prompt" translate="no">${esc(SETUP_PROMPT)}</pre>

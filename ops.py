@@ -7,6 +7,7 @@ import config as cfg
 import detect
 
 MARK = {True: "✓", False: "✗", None: "–"}
+USER_ONLY = {"claude.live_usage"}
 
 
 def parse_value(raw):
@@ -44,6 +45,8 @@ def cmd_config(args):
         print(f"{args.key} is a secret — use `opsboard secret set {args.key}` or the Settings page", file=sys.stderr)
         return 2
     try:
+        if args.key in USER_ONLY and args.source != "user":
+            raise ValueError(f"{args.key} reads Claude Code's own sign-in — only you can switch it, in Settings → Claude")
         if args.action == "set":
             cfg.set(args.key, parse_value(args.value), args.source, args.origin or f"set by {args.source}")
         else:
