@@ -89,11 +89,15 @@ function blink(el) {
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   const accent = getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#3b6fe0";
   const glow = accent + "33", ring = `inset 0 0 0 2px ${accent}`;
+  const box = el.parentElement && getComputedStyle(el.parentElement);
+  const inner = box ? Math.max(0, parseFloat(box.borderTopLeftRadius) - parseFloat(box.borderTopWidth)) + "px" : "0px";
+  const first = !el.previousElementSibling, last = !el.nextElementSibling;
+  const borderRadius = [first ? inner : "0px", first ? inner : "0px", last ? inner : "0px", last ? inner : "0px"].join(" ");
   el.animate([
-    { backgroundColor: "transparent", boxShadow: "inset 0 0 0 2px transparent" },
-    { backgroundColor: glow, boxShadow: ring, offset: 0.35 },
-    { backgroundColor: glow, boxShadow: ring, offset: 0.55 },
-    { backgroundColor: "transparent", boxShadow: "inset 0 0 0 2px transparent" },
+    { backgroundColor: "transparent", boxShadow: "inset 0 0 0 2px transparent", borderRadius },
+    { backgroundColor: glow, boxShadow: ring, borderRadius, offset: 0.35 },
+    { backgroundColor: glow, boxShadow: ring, borderRadius, offset: 0.55 },
+    { backgroundColor: "transparent", boxShadow: "inset 0 0 0 2px transparent", borderRadius },
   ], { duration: 1800, delay: 450, easing: "ease-in-out" });
 }
 

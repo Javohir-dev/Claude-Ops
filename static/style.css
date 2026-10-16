@@ -621,3 +621,5 @@ main { margin-left: var(--sidebar); padding: 24px 32px 64px; max-width: 1680px; 
 .nlink:hover { color: var(--accent); background: var(--panel); }
 @media (max-width: 1180px) and (min-width: 761px) { .sidehead { flex-direction: column; } }
 @media (prefers-reduced-motion: reduce) { .bell.ring svg { animation: none; } }
+.panel.list > :first-child { border-top-left-radius: calc(var(--r-md) - 1px); border-top-right-radius: calc(var(--r-md) - 1px); }
+.panel.list > :last-child { border-bottom-left-radius: calc(var(--r-md) - 1px); border-bottom-right-radius: calc(var(--r-md) - 1px); }
