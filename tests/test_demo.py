@@ -19,5 +19,6 @@ class DemoTest(unittest.TestCase):
         self.assertTrue(all(e.endswith(("acme.example", "example.com")) for e in re.findall(r"[\w.+-]+@[\w.-]+", text)))
         self.assertTrue(all(h in ("github.com", "acme.atlassian.net") for h in re.findall(r"https://([\w.-]+)", text)))
 
+
 if __name__ == "__main__":
     unittest.main()

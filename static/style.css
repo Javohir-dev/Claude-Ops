@@ -584,3 +584,4 @@ main { margin-left: var(--sidebar); padding: 24px 32px 64px; max-width: 1680px; 
 .hstats .uemail { color: var(--text); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .hstats .uorg { font-size: var(--fs-xs); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .hstats .meter.stale .mrow span, .hstats .meter.stale b { color: var(--muted); }
+.hstats .ulive { margin-left: 6px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: var(--ok); background: color-mix(in srgb, var(--ok) 16%, transparent); border-radius: var(--r-full); padding: 1px 6px; }

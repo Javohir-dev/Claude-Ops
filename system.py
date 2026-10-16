@@ -4,6 +4,8 @@ import re
 import time
 from pathlib import Path
 
+import claudeusage
+import config as cfg
 import machine
 import stackprofile as profile
 from core import db_container, db_user, epoch, lock, put, run, size_bytes, state, worktree_paths
@@ -209,12 +211,19 @@ def collect_claude_usage():
     cached = raw.get("cachedUsageUtilization") or {}
     acct = raw.get("oauthAccount") or {}
     plan = str(acct.get("organizationType") or "").replace("_", " ").title().replace("Claude ", "Claude ")
+    utilization, fetched, source, live_error = cached.get("utilization") or {}, (cached.get("fetchedAtMs") or 0) / 1000, "cache", ""
+    if cfg.get("claude.live_usage"):
+        live, live_error = claudeusage.fetch()
+        if live:
+            utilization, fetched, source = live, claudeusage.last_fetched(), "live"
+    else:
+        claudeusage.reset()
     limits = []
-    for item in (cached.get("utilization") or {}).get("limits") or []:
+    for item in utilization.get("limits") or []:
         model = (((item.get("scope") or {}).get("model") or {}).get("display_name")) or ""
         label = USAGE_LABELS.get(item.get("kind")) or (f"Weekly {model}" if model else str(item.get("kind", "")).replace("_", " ").capitalize())
         limits.append(
             {"label": label, "percent": item.get("percent") or 0, "severity": item.get("severity") or "normal", "resets_at": epoch(item.get("resets_at") or ""), "active": bool(item.get("is_active"))}
         )
     account = {"email": acct.get("emailAddress") or "", "org": acct.get("organizationName") or "", "plan": plan}
-    put("claude_usage", {"limits": limits, "fetched": (cached.get("fetchedAtMs") or 0) / 1000, "account": account})
+    put("claude_usage", {"limits": limits, "fetched": fetched, "account": account, "source": source, "live_error": live_error})

@@ -2,6 +2,14 @@
 
 All notable changes. Versions follow [semantic versioning](https://semver.org/); `opsboard update` installs the newest tagged version.
 
+## Unreleased
+
+### Added
+- *Settings → Claude → Live Claude usage* (off by default): plan limits every minute with Claude Code's own sign-in, falling back to the cache when it is missing, expired or rejected.
+
+### Changed
+- Overview starts with the machine; task attention stays on the Tasks page. Expired limits are no longer shown as current.
+
 ## 0.10.0 — 2026-10-15
 
 First public release.
