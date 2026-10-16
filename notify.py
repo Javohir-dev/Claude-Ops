@@ -7,6 +7,7 @@ import threading
 import time
 import uuid
 
+import config as cfg
 from core import DATA, log
 
 FILE = DATA / "notifications.json"
@@ -55,6 +56,8 @@ def run_finished(r, mr_title=""):
         _save([item] + items)
     if time.time() - _last_alerting_page > PAGE_GONE:
         os_notify(*text(item))
+    if cfg.get("notify.sound"):
+        play_sound(item["status"] == "error" or (item.get("outcome") or {}).get("status") == "stopped")
     return item
 
 
@@ -98,3 +101,25 @@ def os_notify(title, body):
             subprocess.Popen(["notify-send", "-a", "Opsboard", title, body], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     except OSError as exc:
         log.warning("desktop notification failed: %s", exc)
+
+
+MAC_SOUNDS = {False: "/System/Library/Sounds/Glass.aiff", True: "/System/Library/Sounds/Basso.aiff"}
+LINUX_SOUNDS = {False: "/usr/share/sounds/freedesktop/stereo/complete.oga", True: "/usr/share/sounds/freedesktop/stereo/dialog-warning.oga"}
+
+
+def play_sound(bad=False):
+    if os.environ.get("OPS_NO_OS_NOTIFY"):
+        return False
+    if sys.platform == "darwin":
+        cmd = ["afplay", MAC_SOUNDS[bad]]
+    else:
+        player = shutil.which("paplay") or shutil.which("pw-play")
+        if not player or not os.path.exists(LINUX_SOUNDS[bad]):
+            return False
+        cmd = [player, LINUX_SOUNDS[bad]]
+    try:
+        subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        return True
+    except OSError as exc:
+        log.warning("notification sound failed: %s", exc)
+        return False

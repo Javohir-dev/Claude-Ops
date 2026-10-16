@@ -5,6 +5,7 @@ All notable changes. Versions follow [semantic versioning](https://semver.org/);
 ## Unreleased
 
 ### Added
+- A short system sound with each notification (a different one when a run failed or stopped); *Settings → Claude → Sound when a fix finishes*, on by default.
 - *Settings → Claude → Claude usage in the sidebar* (on by default). Off: the sidebar shows CPU, RAM and swap, and Overview leaves out the machine tiles.
 - **Notifications:** a bell next to the logo counts finished fix runs (pushed, committed, stopped, failed); click an entry to jump to its merge request on Overview, which lights up once. Optional browser alerts, and a system notification (macOS Notification Center, `notify-send` on Linux) when no dashboard tab is showing them.
 - *Settings → Claude → Live Claude usage* (on by default; switching it takes effect at once): plan limits every minute with Claude Code's own sign-in, falling back to the cache when it is missing, expired or rejected. Off: no limits at all — the sidebar shows CPU, RAM and swap, and Overview leaves out the machine tiles.

@@ -2,6 +2,7 @@ import time
 import unittest
 from unittest import mock
 
+import config as cfg
 import notify
 
 
@@ -16,6 +17,10 @@ class NotifyTest(unittest.TestCase):
         p = mock.patch.object(notify, "os_notify")
         self.os_notify = p.start()
         self.addCleanup(p.stop)
+        q = mock.patch.object(notify, "play_sound")
+        self.sound = q.start()
+        self.addCleanup(q.stop)
+        cfg.set("notify.sound", None, "user")
 
     def test_one_unread_item_per_run(self):
         notify.run_finished(run(), "Fix totals")
@@ -43,6 +48,14 @@ class NotifyTest(unittest.TestCase):
         self.assertEqual(notify.text(notify.run_finished(run(outcome=o))), ("Fix pushed · !7", "a1b2c3d · threads 3 resolved · 0 open · tests 4/4"))
         self.assertEqual(notify.text(notify.run_finished(run(outcome={"status": "stopped", "note": "conflict"})))[0], "Fix stopped · !7")
         self.assertEqual(notify.text(notify.run_finished(run(status="error", result="  ")))[1], "the run ended with an error")
+
+    def test_sound_unless_switched_off(self):
+        notify.run_finished(run())
+        notify.run_finished(run(status="error"))
+        self.assertEqual([c.args for c in self.sound.call_args_list], [(False,), (True,)])
+        cfg.set("notify.sound", False, "user")
+        notify.run_finished(run())
+        self.assertEqual(self.sound.call_count, 2)
 
     def test_mark_read_and_clear(self):
         a = notify.run_finished(run())

@@ -118,6 +118,7 @@ document.addEventListener("click", async e => {
   const bell = e.target.closest("[data-bell]");
   if (bell) { e.preventDefault(); $("npanel").hidden ? openNotifPanel(bell) : closeNotifPanel(); return; }
   if (e.target.closest("[data-notif-allow]")) { try { await Notification.requestPermission(); } catch (x) {} renderNotifPanel(); return; }
+  if (e.target.closest("[data-notif-sound]")) { e.preventDefault(); notifAction({ action: "sound" }); return; }
   if (e.target.closest("[data-notif-readall]")) { markNotifsRead(null); return; }
   if (e.target.closest("[data-notif-clear]")) { data.notifications = []; renderBell(); notifAction({ action: "clear" }); return; }
   if (e.target.closest(".nlink")) { const it = e.target.closest("[data-notif-open]"); if (it) markNotifsRead([it.dataset.notifOpen]); return; }

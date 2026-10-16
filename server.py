@@ -137,6 +137,9 @@ class Handler(BaseHTTPRequestHandler):
                 body = json.loads(self.rfile.read(int(self.headers.get("Content-Length") or 0)) or b"{}")
                 if body.get("action") == "clear":
                     notify.clear()
+                elif body.get("action") == "sound":
+                    if not notify.play_sound():
+                        raise ValueError("no sound player found (afplay on macOS, paplay or pw-play on Linux)")
                 elif body.get("action") == "read":
                     ids = body.get("ids")
                     notify.mark_read({str(i) for i in ids} if isinstance(ids, list) else None)
