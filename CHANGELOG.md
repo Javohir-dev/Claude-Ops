@@ -9,6 +9,9 @@ All notable changes. Versions follow [semantic versioning](https://semver.org/);
 - README section *Claude usage* with setup and troubleshooting; the sidebar tells you to run `/usage` when there is nothing saved yet.
 - Agents cannot switch *Live Claude usage* on through `opsboard config` (`--source agent` is refused); the setup prompt tells Claude never to read Claude Code's sign-in.
 
+### Fixed
+- A fix run stays *running* until its Claude process exits; a run with background jobs was marked done after its first turn, so only one of several runs showed as in progress.
+
 ### Changed
 - Overview starts with the machine; task attention stays on the Tasks page. Expired limits are no longer shown as current.
 

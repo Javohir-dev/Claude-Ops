@@ -99,17 +99,36 @@ def save_runs(runs):
     RUNS_FILE.write_text(json.dumps(runs))
 
 
+def _same_process(r):
+    """True while the run's own claude process is alive (guards against a reused pid)."""
+    proc = popen.get(r["pid"])
+    if proc:
+        return proc.poll() is None
+    if not alive(r["pid"]):
+        return False
+    try:
+        cmd = subprocess.run(["ps", "-o", "command=", "-p", str(r["pid"])], capture_output=True, text=True, timeout=5).stdout
+    except (OSError, subprocess.SubprocessError):
+        return True
+    return r.get("prompt", "") in cmd
+
+
 def refresh_runs():
     with runs_lock:
         runs = load_runs()
         changed = False
         for r in runs:
+            recent = time.time() - r.get("started", 0) < 86400
+            if r["status"] in ("done", "error") and recent and not r.get("exited") and _same_process(r):
+                r.update(status="running", ended=0)
+                changed = True
             if r["status"] != "running":
                 continue
             try:
                 lines = Path(r["log"]).read_text(errors="replace").splitlines()
             except OSError:
                 lines = []
+            last = None
             for line in lines:
                 try:
                     ev = json.loads(line)
@@ -118,18 +137,24 @@ def refresh_runs():
                 if ev.get("session_id") and not r.get("session_id"):
                     r["session_id"], changed = ev["session_id"], True
                 if ev.get("type") == "result":
-                    text = str(ev.get("result") or "")
-                    r.update(status="error" if ev.get("is_error") else "done", result=text[:4000], cost=ev.get("total_cost_usd"), ended=time.time(), outcome=parse_outcome(text))
+                    last = ev
+            if last is not None:
+                text = str(last.get("result") or "")
+                update = {"result": text[:4000], "cost": last.get("total_cost_usd"), "outcome": parse_outcome(text), "is_error": bool(last.get("is_error"))}
+                if any(r.get(k) != v for k, v in update.items()):
+                    r.update(update)
                     changed = True
-            proc = popen.get(r["pid"])
-            exited = proc.poll() is not None if proc else not alive(r["pid"])
-            if r["status"] == "running" and exited:
-                err = Path(r["log"]).with_suffix(".err")
-                tail = err.read_text(errors="replace")[-600:].strip() if err.exists() else ""
-                r.update(status="stopped" if r.get("stop_requested") else "error", ended=time.time(), result=tail or "process exited without a result")
-                changed = True
-            if r["status"] != "running":
+            if not _same_process(r):
+                if last is not None:
+                    status = "error" if last.get("is_error") else "done"
+                else:
+                    err = Path(r["log"]).with_suffix(".err")
+                    tail = err.read_text(errors="replace")[-600:].strip() if err.exists() else ""
+                    r["result"] = tail or "process exited without a result"
+                    status = "error"
+                r.update(status="stopped" if r.get("stop_requested") else status, ended=time.time(), exited=True)
                 popen.pop(r["pid"], None)
+                changed = True
         if changed:
             save_runs(runs)
     return runs
